@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+/* `dark:` follows the theme set on <html data-theme>, not the media query directly. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* Fieldbook: pale sage paper, deep green ink, one cobalt pen. */
+@theme {
+  --color-paper: #f2f4ee;
+  --color-surface: #fbfcf8;
+  --color-sage: #e4eadf;
+  --color-mist: #e6ecf1;
+  --color-line: #c9d1c4;
+  --color-ink: #15231c;
+  --color-ink-2: #4f5f55;
+  --color-pen: #2743c9;
+  --color-pen-hover: #1a2f9a;
+  --color-disabled: #8a968d;
+  /* The footer band: dark in both themes. */
+  --color-deep: #15231c;
+  --color-on-deep: #f2f4ee;
+  --color-on-deep-2: #a9b8ac;
+  /* The four agents of the hero build animation. */
+  --color-agent-1: #4e7a3a;
+  --color-agent-2: #8a3f7a;
+  --color-agent-3: #9a6410;
+  --color-agent-4: #2743c9;
+}
+
+/* Fieldbook at night: the ink becomes the page, the paper becomes the ink, the pen glows. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-paper: #101a15;
+  --color-surface: #18261e;
+  --color-sage: #1c2c23;
+  --color-mist: #18262f;
+  --color-line: #33463b;
+  --color-ink: #e7ede1;
+  --color-ink-2: #a3b3a7;
+  --color-pen: #93a6ff;
+  --color-pen-hover: #b7c3ff;
+  --color-disabled: #6c7a70;
+  --color-deep: #0a120e;
+  --color-on-deep: #e7ede1;
+  --color-on-deep-2: #8d9d91;
+  --color-agent-1: #9ccf84;
+  --color-agent-2: #e29bd2;
+  --color-agent-3: #e6b563;
+  --color-agent-4: #93a6ff;
+}
+
+@theme inline {
+  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-sans: var(--font-instrument), system-ui, sans-serif;
+  --font-mono: var(--font-dm-mono), ui-monospace, monospace;
+}
+
+:root {
+  color-scheme: light;
+  --nav-h: 60px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --nav-h: 80px;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Section links land just under the sticky nav bar. Snapping is done in SmoothScroll.tsx. */
+  scroll-padding-top: var(--nav-h);
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-pen);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--color-pen);
+  color: var(--color-surface);
+}
+
+/* Dotted notebook page, fading out toward the top and bottom of its section. */
+.dot-page {
+  background-image: radial-gradient(circle, var(--color-line) 1.1px, transparent 1.6px);
+  background-size: 28px 28px;
+  mask-image: linear-gradient(to bottom, transparent, #000 22%, #000 72%, transparent);
+}
+
+/* Build animation: elements stay hidden until an agent builds them. */
+html[data-build] [data-build]:not([data-built]) {
+  visibility: hidden;
+}
+
+/* The agents' cursors wait just off screen; that must not add a sideways scrollbar.
+   It is `clip`, not `hidden`, so the body does not become a scroller and the nav bar stays sticky. */
+html[data-build] body {
+  overflow-x: clip;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
