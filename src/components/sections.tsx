@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { site, type Project } from "@/content/site";
 import { MobileMenu } from "./MobileMenu";
 import { NavLinks } from "./NavLinks";
-import { projectNotes, Stage } from "./ProjectNotes";
+import { projectNotes, Stage, type StageDef } from "./ProjectNotes";
 import { h2, label, Section, wrap } from "./Section";
 import { ThemeToggle } from "./ThemeToggle";
 import { Thread } from "./Thread";
@@ -257,9 +257,8 @@ export function Skills() {
   );
 }
 
-/** Panels step through paper, sage, mist and title left, right, centre, then repeat. */
+/** Panels step through paper, sage and mist, then repeat. */
 const panelTones = ["bg-paper", "bg-sage", "bg-mist"];
-const panelAligns = ["left", "right", "center"] as const;
 
 function ProjectTitle({ project }: { project: Project }) {
   const lines = project.titleLines ?? [project.title];
@@ -268,7 +267,8 @@ function ProjectTitle({ project }: { project: Project }) {
       <span className="sr-only">{project.title}</span>
       <span aria-hidden="true">
         {lines.map((line, i) => (
-          <span key={i} className="block">
+          // The pen line runs over the first line of the title and behind the rest (Thread.tsx).
+          <span key={i} className="block" data-thread-over={i === 0 ? "" : undefined}>
             {line.split("&").map((part, j) => (
               <span key={j}>
                 {j > 0 ? <span className="font-semibold italic">&amp;</span> : null}
@@ -282,58 +282,52 @@ function ProjectTitle({ project }: { project: Project }) {
   );
 }
 
+/**
+ * One project. The title and summary sit in the middle of the panel, with two stages of notes
+ * above them, one on each side of the summary and two below. The pen line runs across the top,
+ * crosses the title (over its first line, behind its second) and then works through the rest.
+ * On phones the title and summary come first and the stages follow in the order the line visits them.
+ */
 function ProjectPanel({ project, index }: { project: Project; index: number }) {
-  const align = panelAligns[index % 3];
-  const stages = projectNotes[project.title] ?? [];
-  const side = "lg:absolute lg:top-1/2 lg:-translate-y-1/2";
-  const gutter = align === "left" ? "lg:right-[min(6.67vw,96px)]" : "lg:left-[min(6.67vw,96px)]";
+  const notes = projectNotes[project.title];
+  const band = "grid w-full gap-10 lg:grid-cols-2 lg:items-center lg:gap-x-[6%]";
+  const stage = (def: StageDef, right: boolean, key: number) => (
+    <Stage key={key} w={def.w} h={def.h} className={`w-full ${right ? "lg:order-2 lg:justify-self-end" : "lg:order-1"}`}>
+      {def.node}
+    </Stage>
+  );
   return (
-    <article data-project={index + 1} data-build-scope className={`relative ${panelTones[index % 3]}`}>
-      <div
-        className={`relative mx-auto flex w-full max-w-[1440px] flex-col gap-4 px-5 py-12 sm:px-10 lg:min-h-[max(720px,calc(100svh_-_var(--nav-h)))] lg:justify-center lg:gap-7 lg:px-[min(6.67vw,96px)] lg:py-20 ${
-          align === "right" ? "items-end" : align === "center" ? "items-center" : "items-start"
-        }`}
-      >
-        <p data-build="type" className={`${label} ${align === "right" ? "text-right" : align === "center" ? "text-center" : ""}`}>
-          {String(index + 1).padStart(2, "0")} / {project.category}
-        </p>
-        <h3
-          data-build="place"
-          className={`relative z-[3] whitespace-nowrap font-display text-[clamp(3.375rem,13.2vw,11.875rem)] font-black uppercase leading-[0.9] lg:leading-[0.86] ${
-            align === "right" ? "text-right" : align === "center" ? "text-center" : ""
-          }`}
-        >
-          <ProjectTitle project={project} />
-        </h3>
+    <article
+      data-project={index + 1}
+      // The route of the pen line through this panel's notes; read by Thread.tsx.
+      data-thread={notes ? JSON.stringify(notes.thread) : undefined}
+      data-build-scope
+      className={`relative ${panelTones[index % 3]}`}
+    >
+      {/* Where the pen line can part and meet again: the top and bottom middle of the panel. */}
+      <span aria-hidden="true" data-node="top" className="absolute left-1/2 top-6 size-0" />
+      <span aria-hidden="true" data-node="end" className="absolute bottom-6 left-1/2 size-0" />
+      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-10 px-5 py-14 sm:px-10 lg:gap-9 lg:px-[min(6.67vw,96px)] lg:py-20">
+        {notes ? <div className={`order-3 lg:order-1 ${band}`}>{notes.top.map((def, i) => stage(def, i === 1, i))}</div> : null}
 
-        {align === "center" ? (
-          <div className="flex w-full justify-between gap-4 lg:contents">
-            {stages.map((stage, i) => (
-              <Stage
-                key={i}
-                w={stage.w}
-                h={stage.h}
-                className={`min-w-0 flex-1 lg:w-[23%] ${side} ${
-                  i === 0 ? "lg:left-[min(6.67vw,96px)]" : "lg:right-[min(6.67vw,96px)]"
-                }`}
-              >
-                {stage.node}
-              </Stage>
-            ))}
-          </div>
-        ) : (
-          stages.map((stage, i) => (
-            <Stage key={i} w={stage.w} h={stage.h} className={`w-full self-start lg:w-[46%] ${side} ${gutter}`}>
-              {stage.node}
-            </Stage>
-          ))
-        )}
+        <div className="order-1 flex flex-col gap-4 lg:order-2 lg:items-center lg:gap-6">
+          <p data-build="type" className={label}>
+            {String(index + 1).padStart(2, "0")} / {project.category}
+          </p>
+          <h3
+            data-build="place"
+            className="relative z-[3] whitespace-nowrap font-display text-[clamp(3.375rem,13.2vw,11.875rem)] font-black uppercase leading-[0.9] lg:text-center lg:leading-[0.86]"
+          >
+            <ProjectTitle project={project} />
+          </h3>
+        </div>
 
+        {/* The summary, with a small stage on each side of it from desktop up. */}
+        <div className="contents lg:order-3 lg:-mt-3 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(0,560px)_minmax(0,1fr)] lg:items-center lg:gap-x-8">
         <div
           data-build="place"
-          className={`relative z-[4] flex w-full flex-col gap-3.5 text-ink-2 ${
-            align === "center" ? "max-w-[540px] lg:items-center lg:text-center" : align === "right" ? "max-w-[484px]" : "max-w-[540px]"
-          }`}
+          data-thread-avoid
+          className="relative z-[4] order-2 -mt-6 flex w-full max-w-[560px] flex-col gap-3.5 text-ink-2 lg:mt-0 lg:items-center lg:justify-self-center lg:text-center"
         >
           <p>{project.summary}</p>
           <p className="font-mono text-[13px] leading-[1.6] lg:text-sm">{project.tags.join(" · ")}</p>
@@ -362,6 +356,21 @@ function ProjectPanel({ project, index }: { project: Project; index: number }) {
             ) : null}
           </div>
         </div>
+          {notes?.sides.map((def, i) => (
+            <Stage
+              key={i}
+              w={def.w}
+              h={def.h}
+              className={`order-4 -my-3 w-[52%] lg:my-0 lg:w-full ${i === 0 ? "self-start lg:order-1 lg:justify-self-start" : "self-end lg:order-3 lg:justify-self-end"}`}
+            >
+              {def.node}
+            </Stage>
+          ))}
+        </div>
+
+        {notes ? (
+          <div className={`order-5 lg:order-4 ${band}`}>{notes.bottom.map((def, i) => stage(def, i === 1, i))}</div>
+        ) : null}
       </div>
     </article>
   );
