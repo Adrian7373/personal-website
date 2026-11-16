@@ -277,9 +277,20 @@ export function Build() {
     );
     waiting.forEach((scope) => observer.observe(scope));
 
-    window.addEventListener("resize", finishNow);
+    // A resize moves everything the agents measured, so the build ends. On touch screens the
+    // browser's address bar slides away while scrolling, which fires `resize` with only the
+    // height changed; sections are sized in `svh`, so nothing moves and the build carries on.
+    const touch = window.matchMedia("(pointer: coarse)").matches;
+    let width = window.innerWidth;
+    const onResize = () => {
+      const sameWidth = window.innerWidth === width;
+      width = window.innerWidth;
+      if (touch && sameWidth) return;
+      finish();
+    };
+    window.addEventListener("resize", onResize);
     return () => {
-      window.removeEventListener("resize", finishNow);
+      window.removeEventListener("resize", onResize);
       finish(true);
     };
   }, []);
