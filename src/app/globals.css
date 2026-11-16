@@ -93,6 +93,25 @@ body {
   mask-image: linear-gradient(to bottom, transparent, #000 22%, #000 72%, transparent);
 }
 
+/* The pen line of the Projects section (Thread.tsx): a fine line, a dot at every fork and a ringed dot at its tip. */
+.thread-line {
+  stroke: var(--color-pen);
+  stroke-width: 1.75;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  visibility: hidden;
+}
+
+.thread-dot {
+  fill: var(--color-pen);
+}
+
+.thread-ring {
+  stroke: var(--color-pen);
+  stroke-width: 1.2;
+  opacity: 0.55;
+}
+
 /* Build animation: elements stay hidden until an agent builds them. */
 html[data-build] [data-build]:not([data-built]) {
   visibility: hidden;
