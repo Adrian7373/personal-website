@@ -4,6 +4,7 @@ import { site, type Project } from "@/content/site";
 import { MobileMenu } from "./MobileMenu";
 import { NavLinks } from "./NavLinks";
 import { projectNotes, Stage, type StageDef } from "./ProjectNotes";
+import { HeroName } from "./HeroName";
 import { h2, label, Section, wrap } from "./Section";
 import { ThemeToggle } from "./ThemeToggle";
 import { Thread } from "./Thread";
@@ -56,6 +57,28 @@ function PenStroke({ className = "" }: { className?: string }) {
 
 const dotPage = <div aria-hidden="true" className="dot-page absolute inset-0 -z-10" />;
 
+/** Opens the resume PDF in the browser's own viewer, in a new tab. */
+function ResumeLink({ href, className }: { href: string; className: string }) {
+  return (
+    <a href={href} target="_blank" rel="noopener noreferrer" data-build="place" className={`group ${className}`}>
+      Resume
+      <span className="sr-only"> (PDF, opens in a new tab)</span>
+      <svg
+        aria-hidden="true"
+        width="12"
+        height="12"
+        viewBox="0 0 14 14"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+      >
+        <path d="M2 12L12 2M4.5 2H12v7.5" />
+      </svg>
+    </a>
+  );
+}
+
 export function Nav() {
   return (
     <header data-build-scope="2" className="sticky top-0 z-10 h-(--nav-h) border-b border-line bg-paper/90 backdrop-blur-md">
@@ -64,10 +87,10 @@ export function Nav() {
           <a
             href="#top"
             data-build="place"
-            className="flex min-h-11 items-center gap-2.5 font-display text-[17px] font-semibold italic md:text-xl"
+            aria-label={`${site.person.name}, back to top`}
+            className="flex min-h-11 items-center font-logo text-[26px] leading-none tracking-[-0.09em] md:text-[30px]"
           >
-            <span aria-hidden="true" className="size-2 flex-none rounded-full bg-pen" />
-            {site.person.name}
+            AA
           </a>
           <div className="flex items-center gap-1 md:gap-5 lg:gap-7">
             <NavLinks links={navLinks} />
@@ -93,16 +116,10 @@ export function Hero() {
             space the shorter surname line leaves on its right. */}
         <div className="relative mt-5 lg:mt-6">
           {/* One word per line on phones; the surname alone on the second line from desktop up. */}
-          <h1
-            data-build="type"
-            className="font-display text-[clamp(3.5rem,15vw,6rem)] font-semibold leading-[0.95] lg:whitespace-nowrap lg:text-[clamp(6rem,10.6vw,9.75rem)] lg:leading-[0.9]"
-          >
-            {words.map((word, i) => (
-              <span key={i} className={i === words.length - 1 ? "block" : "block lg:inline"}>
-                {word}{" "}
-              </span>
-            ))}
-          </h1>
+          <HeroName
+            words={words}
+            className="font-display text-[clamp(3.5rem,15vw,6rem)] leading-[0.95] lg:whitespace-nowrap lg:text-[clamp(6rem,10.6vw,9.75rem)] lg:leading-[0.9]"
+          />
           <div className="mt-6 lg:absolute lg:bottom-[0.3vw] lg:right-0 lg:mt-0 lg:w-[45%]">
             <p data-build="type" className="text-[17px] text-ink-2 lg:text-xl">
               {person.role}
@@ -124,9 +141,7 @@ export function Hero() {
             View projects
           </a>
           {person.resumeUrl ? (
-            <a href={person.resumeUrl} data-build="place" className={buttonSecondary} download>
-              Download resume
-            </a>
+            <ResumeLink href={person.resumeUrl} className={buttonSecondary} />
           ) : null}
           <a href="#contact" data-build="place" className={buttonSecondary}>
             Contact me
@@ -532,12 +547,7 @@ export function Contact() {
             ))}
           </ul>
           {person.resumeUrl ? (
-            <a href={person.resumeUrl} data-build="place" className={`${buttonSecondary} mt-2`} download>
-              Download resume
-              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M7 1v9M3 6.5L7 10l4-3.5M1.5 13h11" />
-              </svg>
-            </a>
+            <ResumeLink href={person.resumeUrl} className={`${buttonSecondary} mt-2`} />
           ) : null}
         </div>
 

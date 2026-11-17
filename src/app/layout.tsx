@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DM_Mono, Fraunces, Instrument_Sans } from "next/font/google";
+import { Bevan, DM_Mono, Fraunces, Instrument_Sans } from "next/font/google";
 import "./globals.css";
 import { site } from "@/content/site";
 
@@ -12,6 +12,13 @@ const fraunces = Fraunces({
 const instrumentSans = Instrument_Sans({
   variable: "--font-instrument",
   subsets: ["latin"],
+});
+
+/** The "AA" logo in the nav bar. */
+const bevan = Bevan({
+  variable: "--font-bevan",
+  subsets: ["latin"],
+  weight: "400",
 });
 
 const dmMono = DM_Mono({
@@ -36,7 +43,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${fraunces.variable} ${instrumentSans.variable} ${dmMono.variable} h-full antialiased`}
+      className={`${fraunces.variable} ${instrumentSans.variable} ${dmMono.variable} ${bevan.variable} h-full antialiased`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeGate }} />
