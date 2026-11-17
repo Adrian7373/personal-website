@@ -55,7 +55,7 @@ export const site = {
     /** Path under /public. Leave "" to show a placeholder box. */
     photo: "",
     /** Put the PDF in /public and point to it here, e.g. "/resume.pdf". Leave "" to hide the resume buttons. */
-    resumeUrl: "",
+    resumeUrl: "/Adrian-Gabriel-Ablaza-Resume.pdf",
     availability: "Open to internship opportunities and freelance projects",
   },
 
