@@ -52,6 +52,8 @@
   --font-display: var(--font-fraunces), Georgia, serif;
   --font-sans: var(--font-instrument), system-ui, sans-serif;
   --font-mono: var(--font-dm-mono), ui-monospace, monospace;
+  /* The "AA" logo in the nav bar. */
+  --font-logo: var(--font-bevan), Georgia, serif;
 }
 
 :root {
